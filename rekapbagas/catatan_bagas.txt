@@ -1,0 +1,123 @@
+DOWNLOAD AUTHENTICATION
+1. pada direktori project laravel kita DOWNLOAD memlaui terminal dengan
+     "php artisan ui bootstrap -AUTHENTICATION
+
+
+===TEMPLATING BLADE===
+sintkas blade: ({{ ... }}) untuk mencetak URL dari aset statis.
+
+1. download bida di web seperi adminLTE atau di bootstrap
+2. biasanya yang dibutuhlan hanyalah fole css dan js nya saja. untuk itu
+     pindah file css dan js pada project kita di folder public dan beri folder 
+     baru bernama backhend dan juga salin folder assets
+3. tingal paste di page yang dibutuhkan dan lakukan perubahan pada llink css dan js
+     dengan cara link: {{asset('alamatnya_disini')}} contoh: href="{{asset('backhend/assets/images/favicon.png')}}"
+4. sesuaikan kebutuhan partikel seperti apa saja yang dibutuhkan dan yang tidak dibutuhkan dapat di hilangkan
+5. buat folder partical di folder resource untuk meletakan SIDEBAR dll agar nanti mudah 
+     pemanggilannya menggunakan php @include
+
+===MIGRATION MODEL (HUBUNGANNYA DENGAN SQL)===
+Tujuannya adalah untunk membangun tabel dengan mudah menggunakan laravel
+dengan menentukan tabel up dan tabl down,sebelumnya dalah tabel database/migration telah ada php database yang
+disesuaikan dengan auth yang kita download dan buat
+Langkah-langkah:
+1. buat dulu DB diphphmyadmin kemudian atur koneksi di file .env 
+2. pergi ke file db/migrations kemudian jalankan php artisa migrate itu 
+     untuk meng-eksekusi public function up () pada file db/migrations
+     maka secara otomatis database terisi *cek di db kalian
+3.php artisan migrate:rollback itu menghapus table kec tbl migration,
+     php artisan tinker untuk membuat data langsung dari gitbash
+          $user = new User; kemudian isi kan sesuai yang di file Models/user
+          $user->name='bagas;
+          $user->email='bagasriatmap@gmail.com';
+          $user->password=bcrypt('bagas12345');
+          $user->save();
+     php artisan migrate:refresh untuk menambahkan table yang ku
+     php artisan migrate:fresh untuk menghapus dan membuat ulang
+Bagaimana cara membuat model sendiri?:
+1. php artisan make:model *namaModel* Rekening -m
+     maka ini akan membuat model bernama Rekening dan struktur tablenya di db/migration
+2. atur data apa saja yang dibutuhkan di file db/migrations/rekening_table
+     contoh:
+      public function up(): void
+    {
+        Schema::create('rekenings', function (Blueprint $table) {
+            $table->id();
+            $table->string('namaRekening');
+            $table->bigInteger('saldoAwal');
+            $table->timestamps();
+        });
+    }
+
+    eksekusi dengan php artisan migrate:fresh untuk menghapus dan membuat table Rekening
+3. MODEL : untuk mengatur input user yakni ubah di file models/Rekening, tambahkan:
+     - protected fillable = ['namaRekening', 'saldoAwal'] -> user hnya dapat mengisi 'namaRekening', 'saldoAwal'
+     **ATAU**
+     - protected guarded = ['id'] -> user bisa menginput selain 'id'
+sebelum isi, pindah direktori ke use app/models/Rekening
+
+     Kemudian eksekusi melalui tingker di gitbash:
+          php artisan tinker
+          $rek = new Rekening;
+          $rek->namaRekening = 'Kas';
+          $rek->saldoAwal = 1000000;
+          $rek->save();
+
+
+===SEEDER===
+Seeder itu merupakan pengisian awal pada database/ data contoh, yang berfungsi membantu pengujian
+1. Pastikan perintah dalam file db/seeders/DatabaseSeeder, tambahkan perintah untuk menetukan Models dengan:
+     use App\Models\User;
+2. Lalu isi functionnya sbb berikut:
+     <<<<<pengisian otomatis>>>>>
+      public function run(): void
+    {
+        User::factory(10)->create();
+    }
+    <<<<<pengisian manual>>>>>
+     use App\Models\User;
+     use App\Models\Rekening;
+     //melakukan seederi untuk dua model yakni User dan Rekening
+      public function run(): void
+    {
+        User::create([
+            'name'     => 'Nanang',
+            'email'    => 'nanang@gmail.com',
+            'password' => bcrypt('nanang123'),
+        ]);
+        
+        User::create([
+            'name'     => 'Mecca',
+            'email'    => 'mecca@gmail.com',
+            'password' => bcrypt('mecca123'),
+        ]);
+        
+        Rekening::create([
+            'namaRekening' => 'Kas',
+            'saldoAwal'    => 100000,
+        ]);
+        
+        Rekening::create([
+            'namaRekening' => 'Bank',
+            'saldoAwal'    => 100000,
+        ]);
+        
+    }
+
+3. Jalankan dengan gitbash eksekusi perintah:
+     php artisan db:seed
+
+
+===== Controller =====
+Merupakan bagian dari MVC(Mode-View-Controller), Controller berfungsi sebagai jembatan antara permintaan pengguna dan data yang akan ditampilkan.
+cara membuat nya:
+     1. dengan gitbash dan perintah *php artisan make:controller -r*-> -r agar secara otomatis menyediakan function CRUD
+     namaController kemudian akan ada di app/http/controller/namaController
+     2. 
+
+===== Route dan View Controller =====
+Route dan View merupakaman sebagai jembatan antara permintaan user, 
+     1. langkah pertama kita membuat controller dan buat public function index(){ return view('rekening.index)}
+     2. Pada Route/web tambahkan alamat dulu "use App/Http/Controllers/rekeningController dan tambahkan
+          sebelum auth, Route::get('rekening',[rekeningController::class, index])-> name('index')
+Jika menggunakan POST maka buat lagi routnya Route::post('/prosces -> ini di action form nya',[rekeningController::class, 'type submitnya']);

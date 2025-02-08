@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\rekeningController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('rekening', [rekeningController::class, 'index'])->name('rekening.index');
+Route::get('rekening/create',[rekeningController::class, 'create'])->name('rekening.create');
+Route::post('rekening/create', [rekeningController::class, 'store'])->name('rekening.store');
+Route::get('rekening/{id}/edit', [rekeningController::class, 'edit'])->name('rekening.edit');
+Route::put('rekening/{id}', [rekeningController::class, 'update'])->name('rekening.update');
+Route::delete('rekening/delete/{id}', [rekeningController::class, 'destroy'])->name('rekening.destroy');
 
 Auth::routes();
 
